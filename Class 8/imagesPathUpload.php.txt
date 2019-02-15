@@ -1,0 +1,51 @@
+<?php
+
+error_reporting(0);
+$con = mysqli_connect('localhost', 'root', '', 'InsertingImage');
+$name = $_FILES['fileupload']['name'];
+$size = $_FILES['fileupload']['size'];
+$type = $_FILES['fileupload']['type'];
+$tmp_name = $_FILES['fileupload']['tmp_name'];
+
+if(isset($_POST['submit']))
+{
+if((($_FILES['fileupload']['type'] == 'image/gif')
+|| ($_FILES['fileupload']['type'] == 'image/jpg')
+|| ($_FILES['fileupload']['type'] == 'image/png')
+|| ($_FILES['fileupload']['type'] == 'image/jpeg'))
+&& $_FILES['fileupload']['size'] < 100000)
+{
+	if($_FILES['fileupload']['error'] > 0)
+	{
+		echo 'Error occured: '.$_FILES['fileupload']['error'];
+	}
+	else
+	{
+		$location = 'images/';
+		if(move_uploaded_file($tmp_name, $location.$name))
+		{
+			echo 'Stored in: '.$location.$name;
+			$insert = mysqli_query($con, 'insert into Images values (Null, "images/'.$name.'")');
+			if($insert)
+			{
+				echo '<br><br>Inserted...';
+			}
+		}
+	}
+}
+else
+{
+	echo 'Invalid File..';
+}
+}
+
+else if(isset($_POST['search']))
+{
+	$select = mysqli_query($con, 'select * from Images where ID = "'.$_POST['imgid'].'"');
+	
+	while($row = mysqli_fetch_array($select))
+	{
+		echo '<img src="'.$row[1].'">';
+	}
+}
+?>
